@@ -173,15 +173,20 @@ class Momenet(nn.Module):
         #Second order layer
         input_lifted = provider.createUnifiedDescriptor(input_tformed, moment_order=self.moment_order, k=self.k_nn,use_Knn=self.use_knn) #[bs x N x k x 12/15] 12/15 w/o normals
         if self.use_lifting:
-            curv_desc = provider.get_patch_evd(input_lifted[:,:,0:3]).detach()
-            input_lifted = torch.cat((input_lifted, curv_desc), dim=2).contiguous()
+            if self.use_knn:
+                curv_desc = provider.get_patch_evd(input_tformed[:, :, 0:3]).detach()
+                batch_size, num_points, num_dims = curv_desc.size()
+                curv_desc = curv_desc.view(batch_size, num_points, 1, 1).repeat(1, 1, self.k_nn, 1)
+                input_lifted = torch.cat((input_lifted, curv_desc), dim=3).contiguous()
+            else:
+                curv_desc = provider.get_patch_evd(input_tformed[:, :, 0:3]).detach()
+                input_lifted = torch.cat((input_lifted, curv_desc), dim=2).contiguous()
 
 
         if self.use_knn:
             ##MLP 64x64
             net = torch_func.relu(self.bn1(self.conv2D_1(input_lifted.transpose(1, 3)))) #out [bs x N x 64 x k]
             ##Max polling
-            #net = nn.MaxPool1d(net.size(-1))(net) #out [bs x N x 64 x k]
             net = net.max(dim=2, keepdim=False)[0]
         else:
             net = input_lifted.transpose(1,2)
