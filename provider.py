@@ -185,11 +185,15 @@ def getKnnDescriptor(x, k=20, idx=None):
         feature: [bs x N x k x 6] where [:,:,:,0:3] are xyz constant by dim=2 and [:,:,:,3:6] are distances to knn
 
     """
+    #Change dims to Bs X 3 X N
+    x = x.transpose(1,2)
+
     batch_size = x.size(0)
-    num_points = x.size(1)
+    num_points = x.size(2)
+    x = x.view(batch_size, -1, num_points)
     if idx is None:
-        idx = knn(x, k=k)  # (batch_size, num_points, k)
-    device = torch.device('cuda')
+        idx = knn(x.transpose(1,2), k=k)  # (batch_size, num_points, k)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     idx_base = torch.arange(0, batch_size, device=device).view(-1, 1, 1) * num_points
 
@@ -197,9 +201,8 @@ def getKnnDescriptor(x, k=20, idx=None):
 
     idx = idx.view(-1)
 
-    # = x.view(batch_size, -1, num_points)
-    x = x.reshape(batch_size, -1, num_points)
     _, num_dims, _ = x.size()
+
     x = x.transpose(2,
                     1).contiguous()  # (batch_size, num_points, num_dims)  -> (batch_size*num_points, num_dims) #   batch_size * num_points * k + range(0, batch_size*num_points)
     feature = x.view(batch_size * num_points, -1)[idx, :]

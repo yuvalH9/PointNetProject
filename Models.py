@@ -1,14 +1,7 @@
-import os
-import sys
-import numpy as np
-import h5py
-import zipfile as ZipAPIs
 import torch
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms
 import torch.nn as nn
 import torch.nn.functional as torch_func
-from MomenetPythorch import provider
+import provider
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 

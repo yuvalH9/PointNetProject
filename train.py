@@ -4,12 +4,11 @@ import numpy as np
 import os
 import sys
 import argparse
-import importlib
 import provider
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 from torchvision import transforms
-from models.Models import PointNet_Classic, Momenet
+from Models import PointNet_Classic, Momenet
 from torch.utils.tensorboard import SummaryWriter
 from datetime import datetime
 import copy
@@ -49,7 +48,7 @@ OPTIMIZER = FLAGS.optimizer
 DECAY_STEP = FLAGS.decay_step
 DECAY_RATE = FLAGS.decay_rate
 
-#MODEL = importlib.import_module(FLAGS.model) # import network module
+
 MODEL = FLAGS.model
 MODEL_FILE = os.path.join(BASE_DIR, 'models', FLAGS.model+'.py')
 LOG_DIR = FLAGS.log_dir
@@ -60,15 +59,15 @@ MOMENT_ORDER = FLAGS.moment_order
 USE_LIFTING = FLAGS.use_lifting
 
 if not os.path.exists(LOG_DIR): os.mkdir(LOG_DIR)
-if os.name == 'nt': #TODO: FIX COPY
-    os.system('copy %s %s' % (os.path.join('models', FLAGS.model+'.py'), LOG_DIR))  # bkp of model def
-    os.system('copy train.py %s' % (LOG_DIR))  # bkp of train procedure
-else:
-    os.system('cp %s %s' % (MODEL_FILE, LOG_DIR)) # bkp of model def
-    os.system('cp train.py %s' % (LOG_DIR)) # bkp of train procedure
+# if os.name == 'nt': #TODO: FIX COPY
+#     os.system('copy %s %s' % (os.path.join('models', FLAGS.model+'.py'), LOG_DIR))  # bkp of model def
+#     os.system('copy train.py %s' % (LOG_DIR))  # bkp of train procedure
+# else:
+#     os.system('cp %s %s' % (MODEL_FILE, LOG_DIR)) # bkp of model def
+#     os.system('cp train.py %s' % (LOG_DIR)) # bkp of train procedure
 
-LOG_FOUT = open(os.path.join(LOG_DIR, 'log_train.txt'), 'w')
-LOG_FOUT.write(str(FLAGS)+'\n')
+# LOG_FOUT = open(os.path.join(LOG_DIR, 'log_train.txt'), 'w')
+# LOG_FOUT.write(str(FLAGS)+'\n')
 
 MAX_NUM_POINT = 2048
 NUM_CLASSES = 40
@@ -192,7 +191,7 @@ def one_epoch_eval(epoch, model, summary_writer, best_acc=0, use_Normals=False):
                 total_seen_class[l] += 1
                 total_correct_class[l] += (predicts[sample_idx] == l).item()
 
-        val_mean_class_accuracy = np.mean(np.array(total_correct_class) / np.array(total_seen_class, dtype=np.float))
+        val_mean_class_accuracy = np.mean(np.array(total_correct_class) / np.array(total_seen_class, dtype=np.float64))
         val_accuracy = correct_predeicts / total_observations
 
         print(
@@ -236,6 +235,8 @@ def train():
     #Define train log params
     log_path = os.path.join(LOG_DIR,TEST_NAME,date_time)
     summary_writer = SummaryWriter(log_path)
+    LOG_FOUT = open(os.path.join(log_path, 'log_train.txt'), 'w')
+    LOG_FOUT.write(str(FLAGS) + '\n')
     best_acc = 0
 
     #summary_writer.add_graph(model)
@@ -245,9 +246,10 @@ def train():
         best_acc = one_epoch_eval(epoch, model, summary_writer, best_acc=best_acc, use_Normals=use_normals)
 
     summary_writer.close()
+    LOG_FOUT.close()
 
 
 
 if __name__ == "__main__":
     train()
-    LOG_FOUT.close()
+
