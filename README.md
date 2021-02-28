@@ -2,7 +2,7 @@
 Final project of Geometric Learning Course - Technion 048865
 
 
-##Introducion
+## Introducion
 This project was implemented by PyTorch. Models are traind on ModelNet40 dataset. A parser is use for the train and eval input (insturction below).
 Some new lifting enhancmented are suggested as part of this project, including: use of point normals, use 3 order moments and use of points curvature.
 Two basic models are available:
@@ -17,7 +17,7 @@ Available models:
 2. `momenet_cls` - Basic Momenet classification network [2]
 3. `momenet_with_normals` - Momenet classification network using normals as well.
 
-###Train Input Params
+### Train Input Params
 
 | Parameter Name | Description | Possible values
 | --- | --- | --- |
@@ -38,7 +38,7 @@ Available models:
 ## Evaluate Running Instructions
 You can choose one of the pretrained models saved as `.pth` files.
 
-###Evaluate Input Params
+### Evaluate Input Params
 
 | Parameter Name | Description | Possible values
 | --- | --- | --- |
@@ -56,11 +56,8 @@ You can choose one of the pretrained models saved as `.pth` files.
 `python train.py --model_path "weights/momenet_3Order.pth" --model "momenet_cls"`
 
 ### List Of Saved Modles
-| Model Weights File | Description |
-| --- | --- |
-| a | b|
+All saved models can be found in `log` dir
 
-## Accuracy Comparison
 ## Refrences
 [1] Qi, Charles R and Su, Hao and Mo, Kaichun and Guibas, Leonidas, "Pointnet: Deep learning on point sets for 3d classification and segmentation".Proceedings of the IEEE conference on computer vision and pattern recognition, p652--660,2017.
 
